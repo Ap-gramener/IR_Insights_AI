@@ -53,7 +53,7 @@
 
 <body>
     <div class="container mt-4">
-        <h1 class="mb-4 text-center"><i class="bi bi-graph-up"></i> Earnings Call Analysis</h1>
+        <h1 class="mb-4 text-center"> Earnings Call Analysis</h1>
 
         <!-- File Upload Section -->
         <div class="row mb-4">
@@ -136,7 +136,7 @@
                     </div>
                 </div>
             </div> -->
-            <div class="col-md-10">
+            <!-- <div class="col-md-10">
                 <div class="card mb-4">
                     <div class="card-header">Quarterly Sentiment Analysis</div>
                     <div class="card-body">
@@ -154,7 +154,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 
@@ -310,111 +310,6 @@ ${competitorTexts.join('\n\n=== Next Competitor Transcript ===\n\n')}`;
             }
         }
 
-        // async function analyzeSentiment() {
-        //     showLoading(true);
-        //     try {
-        //         const clientTexts = [...state.clientFiles.values()]
-        //             .filter(f => f.selected)
-        //             .map(f => f.text)
-        //             .join('\n\n');
-
-        //         const competitorTexts = [...state.competitorFiles.values()]
-        //             .filter(f => f.selected)
-        //             .map(f => f.text)
-        //             .join('\n\n');
-
-        //         const response = await fetch("https://llmfoundry.straive.com/openai/v1/chat/completions", {
-        //             method: "POST",
-        //             headers: { "Content-Type": "application/json" },
-        //             credentials: "include",
-        //             body: JSON.stringify({
-        //                 model: "gpt-4o-mini",
-        //                 messages: [{
-        //                     role: "system",
-        //                     content: `Analyze and compare the sentiment between client and competitor earnings call transcripts. 
-        //             Provide a structured comparative analysis. Return the response in the following JSON format exactly:
-        //             {
-        //                 "client": {
-        //                     "score": (number between -1 and 1),
-        //                     "positive": [array of positive points],
-        //                     "negative": [array of negative points],
-        //                     "neutral": [array of neutral points]
-        //                 },
-        //                 "competitor": {
-        //                     "score": (number between -1 and 1),
-        //                     "positive": [array of positive points],
-        //                     "negative": [array of negative points],
-        //                     "neutral": [array of neutral points]
-        //                 },
-        //                 "comparison": {
-        //                     "clientAdvantages": [array of points where client is better],
-        //                     "competitorAdvantages": [array of points where competitor is better],
-        //                     "commonalities": [array of common points]
-        //                 }
-        //             }`
-        //                 }, {
-        //                     role: "user",
-        //                     content: `CLIENT TRANSCRIPTS:\n${clientTexts}\n\nCOMPETITOR TRANSCRIPTS:\n${competitorTexts}`
-        //                 }]
-        //             })
-        //         });
-
-        //         if (!response.ok) {
-        //             throw new Error(`API request failed with status ${response.status}`);
-        //         }
-
-        //         const result = await response.json();
-        //         const analysisText = result.choices?.[0]?.message?.content;
-
-        //         if (!analysisText) {
-        //             throw new Error('No analysis content received from API');
-        //         }
-
-        //         let analysis;
-        //         try {
-        //             const cleanedText = analysisText.replace(/```json\n?|\n?```/g, '').trim();
-        //             analysis = JSON.parse(cleanedText);
-
-        //             // Validate analysis structure
-        //             if (!analysis.client || !analysis.competitor || !analysis.comparison ||
-        //                 typeof analysis.client.score !== 'number' ||
-        //                 typeof analysis.competitor.score !== 'number' ||
-        //                 !Array.isArray(analysis.client.positive) ||
-        //                 !Array.isArray(analysis.client.negative) ||
-        //                 !Array.isArray(analysis.client.neutral) ||
-        //                 !Array.isArray(analysis.competitor.positive) ||
-        //                 !Array.isArray(analysis.competitor.negative) ||
-        //                 !Array.isArray(analysis.competitor.neutral) ||
-        //                 !Array.isArray(analysis.comparison.clientAdvantages) ||
-        //                 !Array.isArray(analysis.comparison.competitorAdvantages) ||
-        //                 !Array.isArray(analysis.comparison.commonalities)) {
-        //                 throw new Error('Invalid analysis structure');
-        //             }
-
-        //             // Ensure scores are within valid range
-        //             analysis.client.score = Math.max(-1, Math.min(1, analysis.client.score));
-        //             analysis.competitor.score = Math.max(-1, Math.min(1, analysis.competitor.score));
-
-        //             displayComparativeSentimentAnalysis(analysis);
-        //             const allText = [...state.clientFiles.values(), ...state.competitorFiles.values()]
-        //                 .filter(f => f.selected)
-        //                 .map(f => f.text)
-        //                 .join(' ');
-        //             generateWordCloud(allText);
-        //             updateSentimentTable(analysis);
-        //         } catch (parseError) {
-        //             console.error('Parse error:', parseError);
-        //             console.error('Raw API response:', analysisText);
-        //             throw new Error('Failed to parse sentiment analysis result');
-        //         }
-        //     } catch (error) {
-        //         console.error('Full error:', error);
-        //         showError('Error analyzing sentiment: ' + error.message);
-        //     } finally {
-        //         showLoading(false);
-        //     }
-        // }
-
         async function analyzeSentiment() {
             showLoading(true);
             try {
@@ -528,7 +423,7 @@ ${competitorTexts.join('\n\n=== Next Competitor Transcript ===\n\n')}`;
                         .map(f => f.text)
                         .join(' ');
                     //generateWordCloud(allText);
-                    updateSentimentTable(analysis);
+                    //updateSentimentTable(analysis);
 
                 } catch (parseError) {
                     console.error('Parse error:', parseError);
