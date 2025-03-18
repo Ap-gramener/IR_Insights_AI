@@ -1,0 +1,1013 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Earnings Call Summary</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="icon" href="https://raw.githubusercontent.com/gramener/assets/main/straive-favicon.svg">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <style>
+        body {
+            font-size: 0.9rem;
+            margin: 0 !important;
+        }
+
+        .display-1 {
+            font-size: 3rem !important;
+            font-weight: normal !important;
+            margin: 1.5rem 0 !important;
+        }
+
+        .display-6 {
+            font-size: 1.25rem;
+        }
+
+        .navbar-brand {
+            font-size: 1.25rem !important;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .btn {
+            font-size: 0.875rem;
+        }
+
+        .description {
+            font-family: 'Arial', sans-serif;
+            /* Change this to your preferred font */
+            font-size: 1.2rem;
+            /* Adjust the font size as needed */
+            font-weight: 400;
+            text-align: justify;
+            line-height: 1.6;
+        }
+
+        .question-box {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .answer-box {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .drag-area {
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .drag-area.active {
+            border-color: #0d6efd;
+            background: #f8f9fa;
+        }
+
+        .narrative {
+            max-width: 40rem;
+        }
+
+        .footer-title {
+            font-weight: normal !important;
+        }
+
+        .card-header h3 {
+            font-weight: bold !important;
+            margin: 0 !important;
+        }
+
+        /* Prevent unwanted margin changes */
+        .container-fluid {
+            padding: 0 15px !important;
+            margin: 0 auto !important;
+        }
+
+        #summary-container .card {
+            margin: 1.5rem 0 !important;
+        }
+
+        /* Ensure consistent card header styling */
+        .card-header {
+            background-color: var(--bs-card-cap-bg);
+            padding: 1rem 1.25rem;
+        }
+
+        /* Maintain consistent text weights */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-weight: inherit;
+        }
+
+        .fw-bold {
+            font-weight: bold !important;
+        }
+
+        h1.main-title.display-1 {
+            font-size: 3rem !important;
+            font-weight: normal !important;
+            margin: 1.5rem 0 !important;
+        }
+
+        h2.display-6.description {
+            font-size: 1.25rem !important;
+            font-weight: normal !important;
+        }
+
+        /* Add a more specific style for the navbar brand */
+        .navbar .navbar-brand {
+            font-size: 1.25rem !important;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            border: 2px solid transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .feature-card {
+            height: 100%;
+            transition: all 0.3s ease;
+            border: 1px solid grey;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: green;
+            color: green;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--straive-primary);
+            margin-bottom: 1rem;
+        }
+
+        .questions-list {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .question-box:hover {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .layout-container {
+            display: grid;
+            grid-template-columns: 25% 50% 25%;
+            gap: 20px;
+            padding: 20px;
+            height: calc(100vh - 60px);
+            /* Adjust based on navbar height */
+        }
+
+        .left-panel,
+        .center-panel,
+        .right-panel {
+            background: var(--bs-body-bg);
+            border-radius: 8px;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .pdf-list {
+            margin-top: 15px;
+        }
+
+        .pdf-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 5px;
+            border: 1px solid var(--bs-border-color);
+            border-radius: 4px;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 10%;
+        }
+
+        .chat-input {
+            margin-top: 2px;
+            padding: 10px;
+        }
+
+        .question-answer {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid var(--bs-border-color);
+            border-radius: 4px;
+        }
+
+        .question {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .answer {
+            padding-left: 15px;
+        }
+
+        .dropdown-questions {
+            margin-bottom: 20px;
+        }
+
+        .download-btn {
+            margin: 20px 0;
+        }
+
+        .chat-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .question-answer {
+            background-color: var(--bs-body-bg);
+            border: 1px solid var(--bs-border-color);
+        }
+
+        .question {
+            color: var(--bs-primary);
+        }
+
+        .answer {
+            margin-left: 1rem;
+        }
+
+        #qa-loading {
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+        <!-- <div class="container-fluid"> -->
+        <a class="navbar-brand" href=".">Earnings Call Summary</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="nav-item dropdown ms-auto" role="group" aria-label="Toggle dark mode" title="Toggle Dark Mode">
+                <button class="dark-theme-toggle btn btn-outline-light dropdown-toggle" type="button"
+                    data-bs-toggle="dropdown" aria-expanded="false" aria-label="Toggle theme (light)">
+                    <i class="bi bi-circle-half"></i> <span class="d-lg-none ms-2">Toggle theme</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><button class="dropdown-item active" data-bs-theme-value="light"><i
+                                class="me-2 bi bi-sun-fill"></i>
+                            Light</button></li>
+                    <li><button class="dropdown-item" data-bs-theme-value="dark"><i
+                                class="me-2 bi bi-moon-stars-fill"></i>
+                            Dark</button></li>
+                    <li><button class="dropdown-item"><i class="me-2 bi bi-circle-half"></i> Auto</button></li>
+                </ul>
+            </div>
+        </div>
+        </div>
+    </nav>
+    <div id="questions-container" style="display: none;"></div>
+    <!-- <div class="container-fluid"> -->
+    <h2 class="main-title display-1 my-4 text-center">Automated Earnings Call Analysis & Summary</h2>
+    <div class="layout-container">
+        <!-- Left Panel -->
+        <div class="left-panel">
+            <h4>Upload Files</h4>
+            <div class="mb-3">
+                <label class="form-label">PDF Files</label>
+                <input type="file" class="form-control" id="contract-file" accept=".pdf" multiple />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Audio Files</label>
+                <input type="file" class="form-control" id="audio-file" accept="audio/*" multiple />
+            </div>
+            <div class="pdf-list" id="pdf-list"></div>
+            <button class="btn btn-primary mt-3" id="generate-summary">Generate Summary</button>
+        </div>
+
+        <!-- Center Panel -->
+        <div class="center-panel">
+            <!-- Summary Section -->
+            <div id="summary-container" class="mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Summary</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="summary-loading" class="text-center" style="display: none;">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p>Generating summary...</p>
+                        </div>
+                        <div id="summary-content"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q&A Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Questions & Answers</h3>
+                </div>
+                <div class="card-body">
+                    <div id="qa-container"></div>
+                    <div id="qa-loading" class="text-center" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p>Generating answer...</p>
+                    </div>
+                    <button class="btn btn-secondary mt-3" id="download-qa">Download Q&A</button>
+                </div>
+            </div>
+        </div>
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <div class="chat-container">
+                <h4 class="mb-3">Ask Questions</h4>
+                <div class="chat-input mb-3">
+                    <textarea class="form-control mb-2" id="user-question" placeholder="Ask a question..."></textarea>
+                    <button class="btn btn-primary w-100" id="ask-question">Ask Question</button>
+                </div>
+                <div class="sample-questions">
+                    <h5 class="mb-2">Sample Questions</h5>
+                    <select class="form-select" id="sample-questions">
+                        <option value="">Select a sample question</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- <div class="container" id="questions-container"></div> -->
+
+    <!-- Footer -->
+    <footer class="my-5 vh-20 d-flex align-items-center justify-content-center">
+        <h1 class="footer-title display-4">Designed by <a href="https://www.straive.com/"
+                class="text-reset link-offset-3 link-underline link-underline-opacity-25">Straive</a></h1>
+    </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" type="module"></script>
+    <script src='https://cdn.jsdelivr.net/gh/FThompson/FormPersistence.js@2.0.6/form-persistence.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/@gramex/ui@0.3/dist/dark-theme.js" type="module"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+        // Function to set light theme
+        function setLightTheme() {
+            document.documentElement.setAttribute('data-bs-theme', 'light');
+            updateThemeButtons('light');
+        }
+
+        // Function to set dark theme
+        function setDarkTheme() {
+            document.documentElement.setAttribute('data-bs-theme', 'dark');
+            updateThemeButtons('dark');
+        }
+
+        // Function to update theme button active states
+        function updateThemeButtons(activeTheme) {
+            const themeButtons = document.querySelectorAll('[data-bs-theme-value]');
+            themeButtons.forEach(button => {
+                if (button.getAttribute('data-bs-theme-value') === activeTheme) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+        }
+
+        // Event listeners for theme buttons
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeButtons = document.querySelectorAll('[data-bs-theme-value]');
+
+            themeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const theme = button.getAttribute('data-bs-theme-value');
+
+                    switch (theme) {
+                        case 'light':
+                            setLightTheme();
+                            break;
+                        case 'dark':
+                            setDarkTheme();
+                            break;
+                        case 'auto':
+                            // Remove theme attribute to use system preference
+                            document.documentElement.removeAttribute('data-bs-theme');
+                            updateThemeButtons('auto');
+                            break;
+                    }
+                });
+            });
+
+            // Set light theme by default
+            setLightTheme();
+        });
+
+        let uploadedFiles = [];
+        let uploadedAudioFiles = [];
+
+        function displayPDFList() {
+            const pdfList = document.getElementById('pdf-list');
+            pdfList.innerHTML = '';
+
+            uploadedFiles.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'pdf-item';
+                item.innerHTML = `
+            <input type="checkbox" id="pdf-${index}" checked class="form-check-input me-2">
+            <label for="pdf-${index}">${file.name}</label>
+        `;
+                pdfList.appendChild(item);
+            });
+        }
+
+        function getSelectedPDFs() {
+            const checkboxes = document.querySelectorAll('.pdf-item input[type="checkbox"]');
+            return Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => {
+                    const index = parseInt(cb.id.split('-')[1]);
+                    return uploadedFiles[index];
+                });
+        }
+
+        async function loadSampleQuestions() {
+            const response = await fetch('questions.json');
+            const data = await response.json();
+            const select = document.getElementById('sample-questions');
+
+            Object.entries(data).forEach(([category, questions]) => {
+                questions.forEach(question => {
+                    const option = document.createElement('option');
+                    option.value = question;
+                    option.textContent = question;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        // async function downloadQA() {
+        //     const { jsPDF } = window.jspdf;
+        //     const doc = new jsPDF();
+
+        //     const qaContainer = document.getElementById('qa-container');
+        //     const qaItems = qaContainer.getElementsByClassName('question-answer');
+
+        //     let yPosition = 20;
+        //     const lineHeight = 7;
+        //     const margin = 20;
+        //     const pageWidth = doc.internal.pageSize.getWidth();
+
+        //     Array.from(qaItems).forEach((item, index) => {
+        //         const question = item.querySelector('.question').textContent;
+        //         const answer = item.querySelector('.answer').textContent;
+
+        //         // Add question
+        //         const questionLines = doc.splitTextToSize(question, pageWidth - 2 * margin);
+        //         doc.text(questionLines, margin, yPosition);
+        //         yPosition += lineHeight * questionLines.length;
+
+        //         // Add answer
+        //         const answerLines = doc.splitTextToSize(answer, pageWidth - 2 * margin);
+        //         doc.text(answerLines, margin, yPosition);
+        //         yPosition += lineHeight * answerLines.length;
+
+        //         // Add spacing between Q&A pairs
+        //         yPosition += lineHeight;
+
+        //         // Check if we need a new page
+        //         if (yPosition > doc.internal.pageSize.getHeight() - margin) {
+        //             doc.addPage();
+        //             yPosition = 20;
+        //         }
+        //     });
+
+        //     doc.save('questions-and-answers.pdf');
+        // }
+
+        async function downloadQA() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const qaContainer = document.getElementById('qa-container');
+            const qaItems = qaContainer.getElementsByClassName('question-answer');
+
+            let yPosition = 20;
+            const lineHeight = 7;
+            const margin = 20;
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+
+            Array.from(qaItems).forEach((item, index) => {
+                const question = item.querySelector('.question').textContent;
+                const answer = item.querySelector('.answer').textContent;
+
+                // Calculate heights for question and answer
+                const questionLines = doc.splitTextToSize(question, pageWidth - 2 * margin);
+                const answerLines = doc.splitTextToSize(answer, pageWidth - 2 * margin);
+                const questionHeight = lineHeight * questionLines.length;
+                const answerHeight = lineHeight * answerLines.length;
+                const totalHeight = questionHeight + answerHeight + (2 * lineHeight); // Extra spacing
+
+                // Check if content will fit on current page
+                if (yPosition + totalHeight > pageHeight - margin) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+
+                // Add question with styling
+                doc.setFont('helvetica', 'bold');
+                doc.text('Q:', margin, yPosition);
+                doc.setFont('helvetica', 'normal');
+                doc.text(questionLines, margin + 10, yPosition);
+                yPosition += questionHeight + lineHeight;
+
+                // Add answer with styling
+                doc.setFont('helvetica', 'bold');
+                doc.text('A:', margin, yPosition);
+                doc.setFont('helvetica', 'normal');
+                doc.text(answerLines, margin + 10, yPosition);
+                yPosition += answerHeight + lineHeight;
+            });
+
+            doc.save('questions-and-answers.pdf');
+        }
+
+        document.getElementById('contract-file').addEventListener('change', (event) => {
+            uploadedFiles = Array.from(event.target.files);
+            displayPDFList();
+        });
+
+        document.getElementById('generate-summary').addEventListener('click', () => {
+            const selectedFiles = getSelectedPDFs();
+            if (selectedFiles.length > 0) {
+                generateSummary(selectedFiles);
+            } else {
+                alert('Please select at least one PDF file');
+            }
+        });
+
+        document.getElementById('ask-question').addEventListener('click', async () => {
+            const question = document.getElementById('user-question').value;
+            if (question.trim()) {
+                const answer = await handleQuestionClick(question);
+                addQuestionAnswer(question, answer);
+                document.getElementById('user-question').value = '';
+            }
+        });
+
+        document.getElementById('sample-questions').addEventListener('change', async (e) => {
+            if (e.target.value) {
+                const answer = await handleQuestionClick(e.target.value);
+                addQuestionAnswer(e.target.value, answer);
+                e.target.value = '';
+            }
+        });
+
+        document.getElementById('download-qa').addEventListener('click', downloadQA);
+
+        async function extractTextFromPDF(file) {
+            return new Promise(async (resolve) => {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let fullText = '';
+
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    fullText += pageText + ' ';
+                }
+
+                resolve({
+                    filename: file.name,
+                    content: fullText
+                });
+            });
+        }
+
+        // Add event listener for audio file uploads
+        document.getElementById('audio-file').addEventListener('change', async (event) => {
+            uploadedAudioFiles = Array.from(event.target.files);
+            if (uploadedAudioFiles.length > 0) {
+                window.scrollTo({
+                    top: 400,
+                    behavior: 'smooth'
+                });
+                await processAudioFiles();
+            }
+        });
+
+        // Function to convert audio to text using Groq
+        async function convertAudioToText(audioFile) {
+            try {
+                // Create FormData and append the audio file
+                const formData = new FormData();
+                formData.append("file", audioFile);
+                formData.append("model", "whisper-1");
+
+                const response = await fetch("https://llmfoundry.straive.com/groq/openai/v1/audio/transcriptions", {
+                    method: "POST",
+                    headers: {
+                        // Remove Content-Type header to let the browser set it automatically with the boundary
+                    },
+                    credentials: "include",
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log(data);
+                return {
+                    filename: audioFile.name,
+                    content: data.text
+                };
+            } catch (error) {
+                console.error('Error converting audio to text:', error);
+                throw error;
+            }
+        }
+
+        // Function to process audio files
+        async function processAudioFiles() {
+            const summaryContainer = document.getElementById('summary-container');
+            const summaryLoading = document.getElementById('summary-loading');
+            const summaryContent = document.getElementById('summary-content');
+
+            summaryContainer.style.display = 'block';
+            summaryLoading.style.display = 'block';
+            summaryContent.innerHTML = '';
+
+            try {
+                // Convert all audio files to text
+                const audioTexts = await Promise.all(uploadedAudioFiles.map(file => convertAudioToText(file)));
+
+                // Add the converted text to uploadedFiles array
+                uploadedFiles = [...uploadedFiles, ...audioTexts];
+
+                // Generate summary using the combined texts
+                await generateSummary();
+            } catch (error) {
+                console.error('Error processing audio files:', error);
+                summaryContent.innerHTML = `
+      <div class="alert alert-danger">
+        Error processing audio files: ${error.message}. Please try again.
+      </div>
+    `;
+                summaryLoading.style.display = 'none';
+            }
+        }
+
+        async function generateSummary() {
+            const summaryContainer = document.getElementById('summary-container');
+            const summaryLoading = document.getElementById('summary-loading');
+            const summaryContent = document.getElementById('summary-content');
+
+            summaryContainer.style.display = 'block';
+            summaryLoading.style.display = 'block';
+            summaryContent.innerHTML = '';
+
+            try {
+                // Get only selected PDFs
+                const selectedFiles = getSelectedPDFs();
+
+                if (selectedFiles.length === 0) {
+                    throw new Error('Please select at least one PDF file');
+                }
+
+                // Process selected PDFs and extract text
+                const pdfTexts = await Promise.all(selectedFiles.map(file => extractTextFromPDF(file)));
+
+                const systemPrompt = `You are an AI assistant specialized in analyzing earnings call transcripts. 
+    Please provide a comprehensive summary of all transcripts separetely and perform sentiment analysis for each document. In sentiment analysis section, highlight positive statements in green and negative statements in red.
+    Format your response in HTML with the following structure:
+    1. Overall Summary (1 paragraph)
+    2. Key Points (bullet points)
+    3. Sentiment Analysis(provide only one statement indicating positive or negative sentiment and the reason for it)`;
+
+                const userPrompt = `Please analyze these earnings call transcripts and provide a structured summary for each document along with sentiment analysis:
+        ${pdfTexts.map(text => `${text.filename}:\n${text.content}`).join('\n\n')}`;
+
+                const response = await fetch("https://llmfoundry.straive.com/gemini/v1beta/openai/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        model: "gemini-2.0-flash",
+                        messages: [
+                            {
+                                role: "system",
+                                content: systemPrompt
+                            },
+                            {
+                                role: "user",
+                                content: userPrompt
+                            }
+                        ],
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                let summary = data.choices[0].message.content;
+
+                // Process the summary to add color highlighting
+                summary = summary.replace(/positive:([^.!?]*[.!?])/gi, '<span style="color: green;">$1</span>');
+                summary = summary.replace(/negative:([^.!?]*[.!?])/gi, '<span style="color: red;">$1</span>');
+
+                // Remove ```html from the start
+                summary = summary.replace(/^```html\s*/, '');
+
+                // Remove ``` from the end
+                summary = summary.replace(/\s*```$/, '');
+
+                summaryContent.innerHTML = `
+            <div class="summary-text">
+                ${summary}
+            </div>
+        `;
+
+            } catch (error) {
+                console.error('Error generating summary:', error);
+                summaryContent.innerHTML = `
+            <div class="alert alert-danger">
+                Error generating summary: ${error.message}. Please try again.
+            </div>
+        `;
+            } finally {
+                summaryLoading.style.display = 'none';
+            }
+        }
+
+
+        // Add some CSS styles
+        const styles = `
+  .summary-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    padding: 1rem;
+  }
+  .summary-text ul {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+  .summary-text li {
+    margin-bottom: 0.5rem;
+  }
+  .summary-text p {
+    margin-bottom: 1rem;
+  }
+`;
+
+        // Add the styles to the document
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = styles;
+        document.head.appendChild(styleSheet);
+
+        // Add this function to handle navigation
+        function updateBreadcrumb(category) {
+            const navbar = document.querySelector('.navbar-brand');
+            if (category) {
+                navbar.innerHTML = `Earnings Call Summary > ${category}`;
+            } else {
+                navbar.innerHTML = 'Earnings Call Summary';
+            }
+        }
+
+        // Function to show original content
+        function showOriginalContent() {
+            const mainContent = document.querySelector('.container-fluid');
+            const questionsContainer = document.getElementById('questions-container');
+
+            // Show original content
+            mainContent.style.display = 'block';
+            // Clear and hide questions container
+            questionsContainer.innerHTML = '';
+            questionsContainer.style.display = 'none';
+            // Reset breadcrumb
+            updateBreadcrumb();
+        }
+
+        async function loadQuestions(category) {
+            try {
+                const mainContent = document.querySelector('.container-fluid');
+                const questionsContainer = document.getElementById('questions-container');
+                const footer = document.querySelector('footer');
+
+                // Hide all content except nav (nav is outside container-fluid)
+                mainContent.style.display = 'none';
+                // Show questions container
+                questionsContainer.style.display = 'block';
+                // Keep footer visible
+                footer.style.display = 'flex';
+
+                // Update breadcrumb
+                updateBreadcrumb(category);
+
+                const response = await fetch('questions.json');
+                const data = await response.json();
+                const questions = data[category];
+
+                questionsContainer.innerHTML = `
+      <div class="container">
+        <h1 class="display-1 my-4 text-center">${category}</h1>
+        <div class="questions-list">
+    `;
+
+                questions.forEach((question, index) => {
+                    questionsContainer.innerHTML += `
+        <div class="question-box" id="question-${index}">
+          <h4>${question}</h4>
+          <div class="loading" id="loading-${index}" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          <div class="answer-box" id="answer-${index}"></div>
+        </div>
+      `;
+                });
+
+                questionsContainer.innerHTML += '</div></div>';
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+
+                // Add click handlers to questions
+                questions.forEach((question, index) => {
+                    document.getElementById(`question-${index}`).addEventListener('click', () => {
+                        handleQuestionClick(question, index);
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading questions:', error);
+            }
+        }
+
+        //Add click handler to Dashboard link
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSampleQuestions();
+            const dashboardLink = document.querySelector('.navbar-brand');
+            dashboardLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                showOriginalContent();
+            });
+        });
+
+        async function handleQuestionClick(question) {
+            const qaLoading = document.getElementById('qa-loading');
+            qaLoading.style.display = 'block';
+            try {
+                // Get only selected PDFs
+                const selectedFiles = getSelectedPDFs();
+
+                if (selectedFiles.length === 0) {
+                    alert('Please select at least one PDF file');
+                    return;
+                }
+
+                // Process selected PDFs and extract text
+                const pdfTexts = await Promise.all(selectedFiles.map(file => extractTextFromPDF(file)));
+
+                const systemPrompt = `You are an AI assistant specialized in analyzing earnings call transcripts. 
+        Analyze the provided transcripts and answer questions about financial performance, business strategy, and market trends.
+        Base your answers only on the information provided in the transcripts.
+        Format your response with bullet points, with each sentence on a separate line.`;
+
+                const userPrompt = `Based on the following earnings call transcripts:
+        ${pdfTexts.map(text => `${text.filename}:\n${text.content}`).join('\n\n')}
+
+        Please answer this question: ${question}`;
+
+                // const response = await fetch("https://llmfoundry.straive.com/gemini/v1beta/openai/chat/completions", {
+                const answer = await fetch("https://llmfoundry.straive.com/gemini/v1beta/openai/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        model: "gemini-2.0-flash",
+                        messages: [
+                            {
+                                role: "system",
+                                content: systemPrompt
+                            },
+                            {
+                                role: "user",
+                                content: userPrompt
+                            }
+                        ],
+                    }),
+                });
+
+                if (!answer.ok) {
+                    throw new Error(`HTTP error! status: ${answer.status}`);
+                }
+
+                const data = await answer.json();
+                let ans = data.choices[0].message.content
+
+                //addQuestionAnswer(question, ans);
+                // return ans;
+                // const data = await response.json();
+                // return data.choices[0].message.content;
+
+                const formatAnswer = (text) => {
+                    // Split the text into sentences
+                    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+
+                    // Format each sentence with a bullet point and new line
+                    return sentences
+                        .map(sentence => `• ${sentence.trim()}`)
+                        .join('\n');
+                };
+
+                const formattedAnswer = formatAnswer(ans);
+                return formattedAnswer;
+
+            } catch (error) {
+                console.error('Error getting answer:', error);
+                return `Error: ${error.message}. Please try again.`;
+            } finally {
+                qaLoading.style.display = 'none';
+            }
+        }
+        function addQuestionAnswer(question, answer) {
+            const qaContainer = document.getElementById('qa-container');
+            const qaDiv = document.createElement('div');
+            qaDiv.className = 'question-answer mb-4 p-3 border rounded';
+            qaDiv.innerHTML = `
+        <div class="question fw-bold mb-2">Q: ${question}</div>
+        <div class="answer">A: ${answer}</div>
+    `;
+            qaContainer.appendChild(qaDiv);
+        }
+    </script>
+</body>
+
+</html>
